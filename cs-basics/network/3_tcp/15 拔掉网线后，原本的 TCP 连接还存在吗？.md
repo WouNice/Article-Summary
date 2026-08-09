@@ -43,7 +43,7 @@
 
 ```v
 # cat /proc/sys/net/ipv4/tcp_retries2
-15
+
 ```
 
 这个内核参数是控制，在 TCP 连接建立的情况下，超时重传的最大次数。

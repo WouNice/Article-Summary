@@ -134,7 +134,7 @@ Sun May 17 07:35:41 CST 2020
 
 ```v
 $ cat /proc/sys/net/ipv4/tcp_abort_on_overflow
-0 # 默认值为 0
+ # 默认值为 0
 ```
 
 tcp_abort_on_overflow 共有两个值分别是 0 和 1，其分别表示：
@@ -246,7 +246,7 @@ LISTEN            101                 5000           *:8088              *:*
 ```v
 # 服务端查看TCP全连接队列是否有溢出
 $ netstat -s I grep overflowed
-6
+
 # 没返回任何值，说明没有连接溢出
 ```
 
@@ -267,7 +267,7 @@ $ netstat -s I grep overflowed
 ```v
 # 查看当前TCP半连接队列长度
 $ netstat -natp | grep SYN_RECV | wc -l
-256 # 表示处于半连接状态的TCP连接有256个
+ # 表示处于半连接状态的TCP连接有256个
 ```
 
 > 如何模拟 TCP 半连接队列溢出场景？
@@ -305,7 +305,7 @@ hping in flood mode, no replies will be shown
 ```v
 # 查看当前TCP半连接队列长度
 $ netstat -natp | grep SYN_RECV | wc -l
-256 # 表示处于半连接状态的TCP连接有256个
+ # 表示处于半连接状态的TCP连接有256个
 ```
 
 同时，还可以通过 netstat -s 观察半连接队列溢出的情况：
@@ -328,7 +328,7 @@ $ netstat -S | grep "SYNs to LISTEN"
 
 ```v
 $ cat /proc/sys/net/ipv4/tcp_max_syn_backlog
-512 # CentOs 6.5 默认值是512
+ # CentOs 6.5 默认值是512
 ```
 
 但是在测试的时候发现，服务端最多只有 256 个半连接队列，而不是 512，所以**半连接队列的最大长度不一定由 tcp_max_syn_backlog 值决定的**。
@@ -420,7 +420,7 @@ $ hping3 -S -p 8088 --flo0d 192.168.3.200
 
 ```v
 $ netstat -natp | grep SYN_RECV | wc -l
-193 # 处于SYN_RECV状态的最大个数是193
+ # 处于SYN_RECV状态的最大个数是193
 ```
 
 可以发现，服务端处于 SYN_RECV 状态的最大个数并不是 max_qlen_log 变量的值。

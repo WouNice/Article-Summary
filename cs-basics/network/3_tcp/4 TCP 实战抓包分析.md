@@ -38,12 +38,12 @@ tcpdump 提供了大量的选项以及各式各样的过滤表达式，来帮助
 #-C3 表示发出 3 个 icmp 数据包
 $ ping -I ethl -c 3 183.232.231.174
 PING 183.232.231.174 (183.232.231.174) from 192.168.3.33 ethl:
-64 bytes from 183.232.231.174: icmp_seq=1 ttl=56 time=17.2 ms
-64 bytes from 183.232.231.174: icmp_seq=2 ttl=56 time=15.7 ms
-64 bytes from 183.232.231.174: icmp_seq=3 ttl=56 time=15.2 ms
+ bytes from 183.232.231.174: icmp_seq=1 ttl=56 time=17.2 ms
+ bytes from 183.232.231.174: icmp_seq=2 ttl=56 time=15.7 ms
+ bytes from 183.232.231.174: icmp_seq=3 ttl=56 time=15.2 ms
 
 -- 183.232.231.174 ping statistics --
-3 packets transmitted, 3 received, 0% packet loss, time 2021ms
+ packets transmitted, 3 received, 0% packet loss, time 2021ms
 rtt min/avg/max/mdev = 15.212/16.051/17.220/0.852 ms
 ```
 
@@ -74,12 +74,12 @@ $ tcpdump -i eth1 icmp and host 183.232.231.174-nn
 $ tcpdump -i ethl icmp and host 183.232.231.174 -nn
 tcpdump: verbose output suppressed, use -V or -vv for full protocol decode
 listening on ethl, link-type EN1oMB (Ethernet), capture size 65535 bytes
-17:20:31.855490 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 1, length 64
-17:20:31.872698 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 1, length 64
-17:20:32.857495 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 2, length 64
-17:20:32.873195 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 2, length 64
-17:20:33.861987 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 3, length 64
-17:20:33.877174 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 3, length 64
+:31.855490 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 1, length 64
+:31.872698 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 1, length 64
+:32.857495 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 2, length 64
+:32.873195 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 2, length 64
+:33.861987 IP 192.168.3.33 > 183.232.231.174: ICMP echo request, id 3341, seq 3, length 64
+:33.877174 IP 183.232.231.174 > 192.168.3.33: ICMP echo reply, id 3341, seq 3, length 64
 ```
 
 从 tcpdump 抓取的 icmp 数据包，我们很清楚的看到 `icmp echo` 的交互过程了，首先发送方发起了 `ICMP echo request` 请求报文，接收方收到后回了一个 `ICMP echo reply` 响应报文，之后 `seq` 是递增的。
@@ -279,7 +279,7 @@ Sat May 16 12:48:25 CST 2020
 
 ```bash
 $ cat /proc/sys/net/ipv4/tcp_syn_retries
-5
+
 ```
 
 `tcp_syn_retries` 默认值为 5，也就是 SYN 最大重传次数是 5 次。
@@ -294,7 +294,7 @@ $ echo 2 > /proc/sys/net/ipv4/tcp_syn_retries
 
 ```v
 $ cat /proc/sys/net/ipv4/tcp_max_syn_backlog
-512 # CentOs 6.5 默认值是512
+ # CentOs 6.5 默认值是512
 ```
 
 > 实验一的实验小结
@@ -353,7 +353,7 @@ TCP 第二次握手 SYN、ACK 包的最大重传次数是通过 `tcp_synack_retr
 
 ```bash
 $ cat /proc/sys/net/ipv4/tcp_synack_retries
-5
+
 ```
 
 是的，TCP 第二次握手 SYN、ACK 包的最大重传次数默认值是 `5` 次。
@@ -465,7 +465,7 @@ $ telnet 192.168.12.36 80
 Trying 192.168.12.36...
 Connected to 192.168.12.36.
 Escape character is "^]'.
-123456	#输入123456字符
+	#输入123456字符
 # 阻塞中...
 ```
 
@@ -477,7 +477,7 @@ $ telnet 192.168.12.36 80
 Trying 192.168.12.36...
 Connected to 192.168.12.36.
 Escape character is "^]'.
-123456	#输入123456字符
+	#输入123456字符
 # Connecti closed by foreign host. #断开连接的错误
 ```
 
@@ -510,7 +510,7 @@ TCP 建立连接后的数据包传输，最大超时重传次数是由 `tcp_retr
 
 ```v
 $ cat /proc/sys/net/ipv4/tcp_retries2
-15
+
 ```
 
 如果 15 次重传都做完了，TCP 就会告诉应用层说：“搞不定了，包怎么都传不过去！”

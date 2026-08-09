@@ -49,7 +49,9 @@ CPU Cache 通常分为三级缓存：L1 Cache、L2 Cache、L3 Cache，级别越�
 问题来了，那在什么时机才把 Cache 中的数据写回到内存呢？为了应对这个问题，下面介绍两种针对写入数据的方法：
 
 - 写直达（`Write Through`）：直写法，CPU在写cache的同时也会立即去写主存；
-- 写回（`Write Back`）：只写cache，在延后的**合适的时间**再去写主存。Write through每次都要把数据更新到主存中，在有些场景下是不需要的(例如单线程程序或者多线程的私有数据)，影响效率。
+- 写回（`Write Back`）：只写cache，在延后的**合适的时间**再去写主存。
+
+Write through每次都要把数据更新到主存中，在有些场景下是不需要的(例如单线程程序或者多线程的私有数据)，影响效率。
 
 ### 写直达
 
@@ -178,7 +180,7 @@ CPU 缓存与内存使用「写回」机制的流程图如下，左半部分就�
 
 协议的作用就是制定标准，缓存一致性协议有很多，例如MSI、MESI、MOESI等，各有优缺点，其核心目的是保证缓存的一致性，在某些方面做了一定的优化(当然，这些优化可能带来新的问题)。
 
-接下来，将从最简单的协议开始，然后逐步分析其优缺点，直到MESI协议的产生，以下的协议都是基于Bus Snooping，
+接下来，将从最简单的协议开始，然后逐步分析其优缺点，直到MESI协议的产生，以下的协议都是基于Bus Snooping：
 
 ![](./assets/img-prp-r.webp)
 
@@ -186,14 +188,12 @@ CPU 缓存与内存使用「写回」机制的流程图如下，左半部分就�
 
 ### Valid/Invalid协议
 
-接下来首先介绍一个最简单的协议，Valid/Invalid(VI)，假设写缓存是write-through的，写缓存的同时写主存。
+接下来首先介绍一个最简单的协议，Valid/Invalid(VI)，假设**写缓存是write-through**的，写缓存的同时写主存。
 
-注意，
-
-1.  本文中的协议都是以有限状态机来描述(fsm)；
-2.  CPU侧的操作都是以Pr开头，有读和写，PrRd，PrWr；
-3.  总线上的消息(bus transaction)以Bus开头，有BusRd，BusWr，BusRdX等。为了简化，有些消息在图中并没有标注，例如BusInv、BusReply等等。例如，当缓存控制器收到BusRd消息时，其实是会回复BusReply消息，当收到BusInv消息，将自己对应的cache line状态置为invalid后，也会回复对应的invalid ack消息；
-4.  图中实线部分是CPU主动发起的操作，而虚线部分是cache line处在某个状态时收到对应的总线消息后状态的转换。
+-   本文中的协议都是以有限状态机来描述(fsm)；
+-   CPU侧的操作都是以Pr开头，有读和写，PrRd，PrWr；
+-   总线上的消息(bus transaction)以Bus开头，有BusRd，BusWr，BusRdX等。为了简化，有些消息在图中并没有标注，例如BusInv、BusReply等等。例如，当缓存控制器收到BusRd消息时，其实是会回复BusReply消息，当收到BusInv消息，将自己对应的cache line状态置为invalid后，也会回复对应的invalid ack消息；
+-   图中实线部分是CPU主动发起的操作，而虚线部分是cache line处在某个状态时收到对应的总线消息后状态的转换。
 
 ![](./assets/img-prp-t.webp)
 
@@ -238,7 +238,7 @@ I指的是无效状态。S指多个缓存都有该地址的值，且都是一样
 
 其中，
 
--   BusRdx,Bus Read Exclusive , I get exclusive copy of this location into my cache，告诉其他的缓存我要独占这个cache line中对应的数据了(写)，发送BusRdx，其他当前在M和S状态的cache line，都会转移到I状态。
+-   BusRdx，总线读取独占，我将此位置的独占副本放入缓存，告诉其他的缓存我要独占这个cache line中对应的数据了(写)，发送BusRdx，其他当前在M和S状态的cache line，都会转移到I状态。
 -   在M状态下收到BusRd消息(其他CPU有读操作)，当前cache line的数据是最新的，因此会触发BUSWB(Bus WriteBack)，将最新的数据写入到主存中。
 -   在M状态下的PrWr可以直接写，不会产生总线消息，比VI协议效率高一些。
 
@@ -254,11 +254,11 @@ I指的是无效状态。S指多个缓存都有该地址的值，且都是一样
 
 ![](./assets/img-prp-wr.webp)
 
-③CPU0 store，PrWr，触发BusRdX,CPU1的缓存控制器收到BusRdX后，将对应cache line的状态置为I，CPU0的缓存控制器将对应的cache line状态置为M。这个时候，并没有更新主存中的数据(write back cache)。此时，CPU0对0xA的读写都是locally的，不会触发bus transcation(不像VI协议)。
+③CPU0 store，PrWr，触发BusRdX，CPU1的缓存控制器收到BusRdX后，将对应cache line的状态置为I，CPU0的缓存控制器将对应的cache line状态置为M。这个时候，并没有更新主存中的数据(write back cache)。此时，CPU0对0xA的读写都是locally的，不会触发bus transcation(不像VI协议)。
 
 ![](./assets/img-prp-wt.webp)
 
-④CPU1 store，PrWr，触发BusRdX；CPU0当前在M状态，收到BusRdX后，会触发BusWB,将自己缓存中的值写回到主存中，此时主存中的值已经更新为3，同时CPU0中对应的cache line的状态更新为I。CPU1将cache line的值更新为最新的10，然后状态更新为M。
+④CPU1 store，PrWr，触发BusRdX；CPU0当前在M状态，收到BusRdX后，会触发BusWB，将自己缓存中的值写回到主存中，此时主存中的值已经更新为3，同时CPU0中对应的cache line的状态更新为I。CPU1将cache line的值更新为最新的10，然后状态更新为M。
 
 ![](./assets/img-prp-wy.webp)
 
@@ -277,9 +277,9 @@ CPU0 读取到最新的值10，状态从I转为S。
 从MESI协议的状态转移图我们可以看出，
 
 -   在I状态，PrRd，如果没有其他的sharer，则进入E状态，否则进入S状态。
--   当没有其他sharer时，读，进入E状态，写,PrWr，进入M状态，没有触发其他的bus transcation。对于单线程或者多线程的私有数据的读写，减少了一条bus transcation(因为图中有些总线消息没有都标出来，所以实际减少的总线消息不止一条)，效率较MSI协议有了提升。
+-   当没有其他sharer时，读，进入E状态，写PrWr，进入M状态，没有触发其他的bus transcation。对于单线程或者多线程的私有数据的读写，减少了一条bus transcation(因为图中有些总线消息没有都标出来，所以实际减少的总线消息不止一条)，效率较MSI协议有了提升。
 
-在论文《Memory Barriers: a Hardware View for Software Hackers》 中介绍了几种MESI协议对应的总线消息，包括，
+在论文《Memory Barriers: a Hardware View for Software Hackers》 中介绍了几种MESI协议对应的总线消息，包括：
 
 >   Read：“Read”消息包含要读取的缓存线的物理地址。
 >
@@ -303,7 +303,7 @@ Invalidate，BusInv消息，Invalidate Ack消息是对BusInv消息的回复，�
 
 下文中会对Read、Read Response、Invalidate、Invalidate Acknowledge、Read Invalidate以及BusRd、BusReply、BusRdX等混用，其实都是一样的意思，只不过下文主要是基于论文中的内容进行描述，会使用论文中的术语。
 
-### MESI协议
+#### 进一步说明
 
 MESI 协议其实是 4 个状态单词的开头字母缩写，分别是：
 
@@ -543,7 +543,7 @@ void bar(void)
 >   1.  smp_rmb() 保证在barrier之前指定的所有LOAD操作将在barrier之后指定的所有LOAD操作之前发生（相对于系统的其他组件）。
 >   2.  smp_wmb() 保证，相对于系统的其他组件，在屏障之前指定的所有STORE操作似乎都发生在屏障之后指定的所有STORE操作之前。
 
-通过以上的分析，为了提高CPU的执行效率，在有Store Buffer和Invalidate Queue之后，即使有MESI协议，缓存的一致性也遭到了破坏。我们不得不通过一些其他的手段，例如内存屏障相关的指令或者函数让程序员在软件层面去做同步。接下来的一篇文章，将会介绍C11/C++11在多线程编程方面保证缓存一致性的手段，主要包括原子类型、原子操作、memory order、内存屏障等。
+通过以上的分析，为了提高CPU的执行效率，在有Store Buffer和Invalidate Queue之后，即使有MESI协议，缓存的一致性也遭到了破坏。我们不得不通过一些其他的手段，例如内存屏障相关的指令或者函数让程序员在软件层面去做同步。
 
 ## 总结
 

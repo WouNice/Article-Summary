@@ -2,7 +2,7 @@
 
 Windows 和 Linux 可以说是我们比较常见的两款操作系统的。
 
--   Windows 并不开源，所以要想接触源码得加入 Windows 的开发团队中。
+-   Windows 并不开源。
 -   Linux内核源码是开源的。
 
 这两个操作系统各有千秋，不分伯仲。
@@ -45,10 +45,10 @@ Windows 和 Linux 可以说是我们比较常见的两款操作系统的。
 
 Linux 内核设计的理念主要有这几个点：
 
-- *MultiTask*，多任务
-- *SMP*，对称多处理
-- *ELF*，可执行文件链接格式
-- *Monolithic Kernel*，宏内核
+- `MultiTask`，多任务
+- `SMP`，对称多处理
+- `ELF`，可执行文件链接格式
+- `Monolithic Kernel`，宏内核
 
 ### MultiTask
 

@@ -427,7 +427,7 @@ RFC793 提到初始化序列号 ISN 随机生成算法：`ISN = M + F(localhost,
 
 ```v
 # cat /proc/sys/net/ipv4/tcp_syn_retries
-5
+
 ```
 
 通常，第一次超时重传是在 1 秒后，第二次超时重传是在 2 秒，第三次超时重传是在 4 秒后，第四次超时重传是在 8 秒后，第五次是在超时重传 16 秒后。没错，**每次超时的时间是上一次的 2 倍**。
@@ -463,7 +463,7 @@ RFC793 提到初始化序列号 ISN 随机生成算法：`ISN = M + F(localhost,
 
 ```v
 # cat /proc/sys/net/ipv4/tcp_synack_retries
-5
+
 ```
 
 因此，当第二次握手丢失了，客户端和服务端都会重传：

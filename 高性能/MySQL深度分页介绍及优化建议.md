@@ -55,7 +55,7 @@ SELECT * FROM t_order WHERE id > 100000 LIMIT 10
 >   正例：先快速定位需要获取的id段，然后再关联：
 >
 >   ```
->   SELECT a.* FROM表1  a, (select id from表1 where条件  LIMIT 100000,20 ) b where a.id=b.id
+>   SELECT a.* FROM 表1  a, (select id from 表1 where 条件 LIMIT 100000,20 ) b where a.id=b.id
 >   ```
 
 ```sql

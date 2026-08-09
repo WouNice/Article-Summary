@@ -164,8 +164,8 @@ Settings for eth0:
 # sar -n DEV 1
 Linux 3.10.0-1127.19.1.el7.x86_64      2022年07月27日     _x86_64_    (1 CPU)
 
-08时35分39秒     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s    rxcmp/s   txcmp/s  rxmcst/s
-08时35分40秒      eth0      6.06      4.04      0.35    121682.33   0.00    0.00     0.00
+时35分39秒     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s    rxcmp/s   txcmp/s  rxmcst/s
+时35分40秒      eth0      6.06      4.04      0.35    121682.33   0.00    0.00     0.00
 ```
 
 其中 **txkB/s 是指当前每秒发送的字节（byte）总数，rxkB/s 是指每秒接收的字节（byte）总数**。
